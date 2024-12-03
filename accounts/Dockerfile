@@ -1,6 +1,6 @@
 FROM openjdk:21-jdk-slim
 
-MAINTAINER azakyd.com
+LABEL maintainer=azakyd
 
 COPY target/accounts-0.0.1-SNAPSHOT.jar accounts-0.0.1-SNAPSHOT.jar
 
