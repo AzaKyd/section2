@@ -4,37 +4,25 @@ services:
     container_name: accounts-ms
     ports:
       - "8080:8080"
-    deploy:
-      resources:
-        limits:
-          memory: 1000m
     networks:
-      -eazybank
+      - eazybank
 
   loans:
     image: "azakyd/loans:s4"
     container_name: loans-ms
     ports:
       - "8090:8090"
-    deploy:
-      resources:
-        limits:
-          memory: 1000m
     networks:
-      -eazybank
+      - eazybank
 
   cards:
     image: "azakyd/cards:s4"
     container_name: cards-ms
     ports:
       - "9000:9000"
-    deploy:
-      resources:
-        limits:
-          memory: 1000m
     networks:
-      -eazybank
+      - eazybank
 
 networks:
   eazybank:
-    driver: "bridge"
+    driver: bridge
