@@ -1,35 +1,76 @@
 services:
+  rabbit:
+    image: rabbitmq:4.0-management
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
   configserver:
     image: "azakyd/configserver:s6"
     container_name: configserver-ms
     ports:
       - "8071:8071"
-    networks:
-      - eazybank
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 1000m
+    extends:
+      file: common-config.yml
+      service: microservice-base-config
+
 
   accounts:
     image: "azakyd/accounts:s6"
     container_name: accounts-ms
     ports:
       - "8080:8080"
-    networks:
-      - eazybank
+    environment:
+      SPRING_APPLICATION_NAME: "accounts"
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
 
   loans:
     image: "azakyd/loans:s6"
     container_name: loans-ms
     ports:
       - "8090:8090"
-    networks:
-      - eazybank
+    environment:
+      SPRING_APPLICATION_NAME: "loans"
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
 
   cards:
     image: "azakyd/cards:s6"
     container_name: cards-ms
     ports:
       - "9000:9000"
-    networks:
-      - eazybank
+    environment:
+      SPRING_APPLICATION_NAME: "cards"
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
+
 
 networks:
   eazybank:
